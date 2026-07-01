@@ -61,7 +61,7 @@ st.markdown("""
 
 # Inicializar el cliente de Groq usando Secrets
 try:
-    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+    client = Groq(api_key=st.secrets["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"])
 except Exception:
     st.error("Por favor, configura tu GROQ_API_KEY en los Secrets de Streamlit.")
 
