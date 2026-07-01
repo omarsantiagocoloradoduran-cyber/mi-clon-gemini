@@ -57,7 +57,7 @@ if "OPENROUTER_API_KEY" in st.secrets:
     try:
         client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
-            api_key=st.secrets["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"]
+            api_key=st.secrets["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"]
         )
     except Exception as e:
         st.error(f"Error al inicializar el cliente: {e}")
