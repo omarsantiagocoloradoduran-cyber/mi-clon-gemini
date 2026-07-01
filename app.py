@@ -21,7 +21,16 @@ if st.button("Preguntar a la IA"):
             try:
                 # Llamada limpia a OpenRouter con el modelo Gemini 2.5 Flash gratuito
                 completion = client.chat.completions.create(
-                    model="meta-llama/llama-3-8b-instruct:free",
+                    # Llamada estable a OpenRouter usando DeepSeek gratuito
+                completion = client.chat.completions.create(
+                    model="deepseek/deepseek-chat:free",
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": pregunta
+                        }
+                    ]
+                )
                     messages=[
                         {
                             "role": "user",
