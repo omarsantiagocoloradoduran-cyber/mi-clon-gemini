@@ -1,8 +1,12 @@
 import streamlit as st
-import google.generativeai as genai
+from openai import OpenAI
 
-# Configura tu clave API de Gemini aquí
-genai.configure(api_key="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")
+# Configuración de OpenRouter
+# Cambia "TU_OPENROUTER_API_KEY" por tu clave real (empieza por sk-or-...)
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key="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",
+)
 
 st.set_page_config(page_title="Mi Clon de Gemini", page_icon="🤖")
 st.title("🤖 Bienvenido")
@@ -12,19 +16,24 @@ st.write("Estoy aquí para responder tus dudas.")
 pregunta = st.text_input("✍️ ¿En qué te ayudo hoy?", placeholder="Escribe tu pregunta o duda aquí...")
 
 if st.button("Preguntar a la IA"):
-    if pregunta.strip():  # Verifica que no esté vacío o solo con espacios
+    if pregunta.strip():  # Verifica que no esté vacío
         with st.spinner("Pensando tu respuesta... 🧠"):
             try:
-                # Usamos gemini-1.5-flash que es rápido y versátil
-                model = genai.GenerativeModel("gemini-1.5-flash")
-                
-                # Generamos la respuesta directamente con el texto
-                response = model.generate_content(pregunta)
+                # Llamada a OpenRouter usando el modelo gratuito de Gemini 1.5 Flash
+                completion = client.chat.completions.create(
+                    model="google/gemini-flash-1.5-8b:free", # Versión libre de Gemini en OpenRouter
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": pregunta
+                        }
+                    ]
+                )
                 
                 st.subheader("📝 Respuesta de la IA:")
-                st.write(response.text)
+                st.write(completion.choices[0].message.content)
                 
             except Exception as e:
-                st.error(f"Hubo un error al procesar con la IA: {e}")
+                st.error(f"Hubo un error con OpenRouter: {e}")
     else:
         st.warning("Por favor, escribe una pregunta primero.")
