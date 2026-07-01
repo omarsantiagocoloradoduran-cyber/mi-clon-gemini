@@ -21,7 +21,7 @@ if st.button("Preguntar a la IA"):
             try:
                 # Llamada a OpenRouter usando el modelo gratuito de Gemini 1.5 Flash
                 completion = client.chat.completions.create(
-                    model="google/gemini-flash-1.5", # Versión libre de Gemini en OpenRouter
+                   model="meta-llama/llama-3-8b-instruct:free",# Versión libre de Gemini en OpenRouter
                     messages=[
                         {
                             "role": "user",
