@@ -5,7 +5,7 @@ from openai import OpenAI
 # Reemplaza "TU_OPENROUTER_API_KEY" por tu clave real de OpenRouter (sk-or-...)
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key="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",
+    api_key="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",
 )
 
 st.set_page_config(page_title="Mi Clon de Gemini", page_icon="🤖")
@@ -19,9 +19,9 @@ if st.button("Preguntar a la IA"):
     if pregunta.strip():
         with st.spinner("Pensando tu respuesta... 🧠"):
             try:
-                # Llamada a OpenRouter sin comentarios intermedios
+                # Llamada limpia usando el modelo gratuito de Mistral
                 completion = client.chat.completions.create(
-                    model="google/gemini-2.5-flash",
+                    model="mistralai/mistral-7b-instruct:free",
                     messages=[
                         {
                             "role": "user",
