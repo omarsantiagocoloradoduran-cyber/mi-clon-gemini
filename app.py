@@ -2,7 +2,7 @@ import streamlit as st
 from openai import OpenAI
 
 # Configuración de OpenRouter
-# Cambia "TU_OPENROUTER_API_KEY" por tu clave real (empieza por sk-or-...)
+# Reemplaza "TU_OPENROUTER_API_KEY" por tu clave real de OpenRouter (sk-or-...)
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key="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",
@@ -16,12 +16,12 @@ st.write("Estoy aquí para responder tus dudas.")
 pregunta = st.text_input("✍️ ¿En qué te ayudo hoy?", placeholder="Escribe tu pregunta o duda aquí...")
 
 if st.button("Preguntar a la IA"):
-    if pregunta.strip():  # Verifica que no esté vacío
+    if pregunta.strip():
         with st.spinner("Pensando tu respuesta... 🧠"):
             try:
-                # Llamada a OpenRouter usando el modelo gratuito de Gemini 1.5 Flash
+                # Llamada limpia a OpenRouter con el modelo Gemini 2.5 Flash gratuito
                 completion = client.chat.completions.create(
-                   model="meta-llama/llama-3-8b-instruct:free",# Versión libre de Gemini en OpenRouter
+                    model="google/gemini-2.5-flash:free",
                     messages=[
                         {
                             "role": "user",
