@@ -1,69 +1,50 @@
 import streamlit as st
-import requests
+import google.generativeai as genai
+from PIL import Image
 
-# 1. Configuración de la página web (Pestaña del navegador)
-st.set_page_config(page_title="Mi Clon de Gemini", page_icon="🤖", layout="centered")
+# Configura tu clave API de Gemini aquí
+# (Recuerda usar tu propia API key)
+genai.configure(api_key="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")
 
-# Estilo personalizado para poner las burbujas de chat bonitas
-st.markdown("""
-    <style>
-    .stChatMessage { border-radius: 15px; padding: 10px; margin-bottom: 10px; }
-    </style>
-""", unsafe_allow_html=True)
+st.set_page_config(page_title="Mi Clon de Gemini 2.0", page_icon="🤖")
+st.title("🤖 Mi Asistente Escolar con IA")
+st.write("¡Sube una foto de tu tarea o escribe tu pregunta abajo!")
 
-st.title("🤖 Mi Clon de Gemini en la Web")
-st.caption("Una Inteligencia Artificial conectada a la nube, creada por Omar Santiago")
+# --- SECCIÓN PARA SUBIR IMÁGENES ---
+imagen_subida = st.file_uploader("📸 Sube una foto de tu tarea (opcional):", type=["jpg", "jpeg", "png"])
 
-# 2. Tu API Key (Colócala aquí adentro)
-API_KEY = "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"
-URL = "https://openrouter.ai/api/v1/chat/completions"
+if imagen_subida:
+    # Mostrar la imagen en la pantalla para que el usuario vea qué subió
+    imagen = Image.open(imagen_subida)
+    st.image(imagen, caption="Tarea cargada con éxito", use_container_width=True)
 
-# 3. Inicializar el historial de chat en la memoria de la página web
-if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {"role": "system", "content": "Eres una IA idéntica a Gemini: auténtica, inteligente, empática y con un toque de ingenio. Hablas español a la perfección."}
-    ]
-    # ¡Aquí está tu saludo de bienvenida automático!
-    st.session_state.bienvenida = "🤖 ¡Bienvenido! Estoy listo para responder tus dudas."
+# --- SECCIÓN DE TEXTO ---
+pregunta = st.text_input("✍️ ¿En qué te ayudo hoy con esta tarea?", placeholder="Ej: Explícame el problema de la foto paso a paso...")
 
-# Mostrar el saludo de bienvenida en la interfaz
-st.chat_message("assistant").write(st.session_state.bienvenida)
-
-# 4. Mostrar los mensajes anteriores del historial si existen
-for msg in st.session_state.messages:
-    if msg["role"] != "system":
-        st.chat_message(msg["role"]).write(msg["content"])
-
-# 5. Barra de texto para que el usuario escriba
-if usuario_input := st.chat_input("Escribe tu pregunta aquí..."):
-    
-    # Mostrar el mensaje del usuario en la pantalla de inmediato
-    st.chat_message("user").write(usuario_input)
-    st.session_state.messages.append({"role": "user", "content": usuario_input})
-    
-    # Llamada a la API de OpenRouter
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": "openrouter/auto",
-        "messages": st.session_state.messages
-    }
-    
-    # Animación de "Pensando..." mientras llega la respuesta
-    with st.chat_message("assistant"):
-        with st.spinner("Pensando..."):
+if st.button("Pedir ayuda a la IA"):
+    if pregunta or imagen_subida:
+        with st.spinner("Analizando tu tarea... 🧠"):
             try:
-                respuesta = requests.post(URL, json=payload, headers=headers, timeout=15)
-                if respuesta.status_code == 200:
-                    data = respuesta.json()
-                    respuesta_ia = data["choices"][0]["message"]["content"]
-                    
-                    # Mostrar la respuesta en la web
-                    st.write(respuesta_ia)
-                    st.session_state.messages.append({"role": "assistant", "content": respuesta_ia})
+                # Usamos el modelo más reciente que procesa texto e imágenes
+                model = genai.GenerativeModel("gemini-1.5-flash")
+                
+                # Armamos el contenido que le enviaremos a la IA
+                contenido_a_enviar = []
+                if imagen_subida:
+                    contenido_a_enviar.append(imagen)
+                if pregunta:
+                    contenido_a_enviar.append(pregunta)
                 else:
-                    st.error(f"Error del servidor (Código {respuesta.status_code})")
+                    # Si sube foto pero no escribe nada, le damos una instrucción por defecto
+                    contenido_a_enviar.append("Por favor, analiza esta imagen y ayúdame a resolverla o entenderla de forma educativa.")
+
+                # Generamos la respuesta
+                response = model.generate_content(contenido_a_enviar)
+                
+                st.subheader("📝 Explicación de la IA:")
+                st.write(response.text)
+                
             except Exception as e:
-                st.error(f"Error de conexión: {e}")
+                st.error(f"Hubo un error: {e}")
+    else:
+        st.warning("Por favor, escribe una pregunta o sube una foto primero.")
