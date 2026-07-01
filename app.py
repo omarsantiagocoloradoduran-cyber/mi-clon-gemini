@@ -51,13 +51,17 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Inicializar cliente de OpenRouter usando Secrets
-try:
-    client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=st.secrets["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"]
-    )
-except Exception:
+# Inicializar cliente de OpenRouter de forma segura
+client = None
+if "OPENROUTER_API_KEY" in st.secrets:
+    try:
+        client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=st.secrets["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"]
+        )
+    except Exception as e:
+        st.error(f"Error al inicializar el cliente: {e}")
+else:
     st.error("Por favor, configura tu OPENROUTER_API_KEY en los Secrets de Streamlit.")
 
 # Título de la app
@@ -67,10 +71,11 @@ st.markdown('<h1 class="main-title">Hola, Omar, ¿qué vamos a hacer hoy?</h1>',
 prompt = st.text_area("", placeholder="Pregunta a la IA...", key="input_box", height=70)
 
 if st.button("Preguntar a la IA"):
-    if prompt:
+    if not client:
+        st.error("No se puede hacer la pregunta porque falta la configuración de la API Key en los Secrets.")
+    elif prompt:
         try:
             with st.spinner("Pensando..."):
-                # openrouter/auto selecciona automáticamente el mejor modelo gratuito disponible
                 completion = client.chat.completions.create(
                     model="openrouter/auto", 
                     messages=[
