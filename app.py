@@ -1,14 +1,14 @@
 import streamlit as st
 from openai import OpenAI
 
-# Configurar la página
+# Configurar la página con el estilo de Isaac Newton
 st.set_page_config(
-    page_title="Mi Asistente Escolar con IA",
-    page_icon="✨",
+    page_title="El Laboratorio de Newton",
+    page_icon="🍎",
     layout="centered"
 )
 
-# --- ESTILO INTEGRADO (Tema Oscuro estilo Gemini) ---
+# --- ESTILO INTEGRADO (Tema Oscuro estilo Gemini / Newton) ---
 st.markdown("""
     <style>
     .stApp {
@@ -20,8 +20,8 @@ st.markdown("""
         font-family: 'Google Sans', sans-serif;
         font-size: 2.5rem;
         font-weight: 500;
-        margin-top: 12%;
-        margin-bottom: 2rem;
+        margin-top: 5%;
+        margin-bottom: 1.5rem;
         color: #ffffff;
     }
     div[data-baseweb="textarea"] {
@@ -48,37 +48,41 @@ st.markdown("""
         color: #ffffff;
         border-color: #a8c7fa;
     }
+    /* Estilo para la caja de la clave */
+    div[data-baseweb="input"] {
+        background-color: #1e1f22 !important;
+        border-radius: 10px !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# Inicializar cliente de OpenRouter de forma segura
-client = None
-if "OPENROUTER_API_KEY" in st.secrets:
-    try:
-        client = OpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=st.secrets["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"]
-        )
-    except Exception as e:
-        st.error(f"Error al inicializar el cliente: {e}")
-else:
-    st.error("Por favor, configura tu OPENROUTER_API_KEY en los Secrets de Streamlit.")
+# Título temático de Newton
+st.markdown('<h1 class="main-title">🍎 Hola, Omar, ¿qué ley de la naturaleza descubriremos hoy?</h1>', unsafe_allow_html=True)
 
-# Título de la app
-st.markdown('<h1 class="main-title">Hola, Omar, ¿qué vamos a hacer hoy?</h1>', unsafe_allow_html=True)
+# Entrada manual de la API Key (para que no falle nunca)
+user_api_key = st.text_input("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", type="password")
 
-# Entrada de texto
-prompt = st.text_area("", placeholder="Pregunta a la IA...", key="input_box", height=70)
+# Entrada de texto para la consulta científica
+prompt = st.text_area("", placeholder="Pregúntale algo a Newton...", key="input_box", height=70)
 
-if st.button("Preguntar a la IA"):
-    if not client:
-        st.error("No se puede hacer la pregunta porque falta la configuración de la API Key en los Secrets.")
+if st.button("Consultar a la IA"):
+    if not user_api_key:
+        st.error("Por favor, introduce tu API Key arriba para que Newton pueda responderte.")
     elif prompt:
         try:
-            with st.spinner("Pensando..."):
+            with st.spinner("Buscando en las leyes del universo..."):
+                client = OpenAI(
+                    base_url="https://openrouter.ai/api/v1",
+                    api_key=user_api_key
+                )
+                
                 completion = client.chat.completions.create(
                     model="openrouter/auto", 
                     messages=[
+                        {
+                            "role": "system",
+                            "content": "Eres Isaac Newton. Responde de forma sabia, científica pero amable, como si estuvieras en el siglo XVII descubriendo la gravedad."
+                        },
                         {
                             "role": "user",
                             "content": prompt
@@ -86,10 +90,10 @@ if st.button("Preguntar a la IA"):
                     ]
                 )
                 
-                st.markdown("### ✨ Respuesta:")
+                st.markdown("### 📜 Sabiduría de Newton:")
                 st.write(completion.choices[0].message.content)
                 
         except Exception as e:
-            st.error(f"Ocurrió un error al conectar con OpenRouter: {e}")
+            st.error(f"Error: Asegúrate de que tu clave es correcta. Detalle: {e}")
     else:
-        st.warning("Por favor, escribe una pregunta primero.")
+        st.warning("Escribe tu duda primero.")
